@@ -1,3 +1,4 @@
+```
 company-name/
 ├── domain/
 │   ├── model/       # Core domain models
@@ -8,3 +9,4 @@ company-name/
 ├── api/             # OpenAPI specs
 ├── deployments/     # Deployment configs
 └── scripts/         # Build scripts
+```
