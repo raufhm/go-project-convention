@@ -2,29 +2,38 @@ package viper
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
-	"go.uber.org/fx"
 	"os"
+	"path/filepath"
 )
 
-type Params struct {
-	fx.In
-}
+func NewViper() *viper.Viper {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
 
-func NewViper() (*viper.Viper, error) {
-	env := os.Getenv("APP_ENV")
-	if env == "" {
-		return nil, fmt.Errorf("APP_ENV is not set")
+	// Load .env from root directory
+	if err := godotenv.Load(filepath.Join(currentDir, ".env")); err != nil {
+		panic(err)
 	}
 
 	v := viper.New()
-	v.SetConfigName(fmt.Sprintf("config-%s", env))
-	v.SetConfigType("yaml")
-	v.AddConfigPath("./config")
+	v.AutomaticEnv()
 
-	if err := v.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("failed to read config file: %w", err)
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		panic(err)
 	}
 
-	return v, nil
+	v.SetConfigName(fmt.Sprintf("config-%s", env))
+	v.SetConfigType("yaml")
+	v.AddConfigPath(filepath.Join(currentDir, "/modules/config"))
+
+	if err := v.ReadInConfig(); err != nil {
+		panic(err)
+	}
+
+	return v
 }
